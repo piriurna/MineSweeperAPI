@@ -63,6 +63,8 @@ public class Play extends BasicGameState {
 							Game.gameOver();
 						}else {
 							t.onMouseClicked();
+							if(t.getBombs() == 0)
+							openBlankTiles(i, j);
 						}
 					}
 				}
@@ -73,7 +75,7 @@ public class Play extends BasicGameState {
 				for(int j = 0; j<playField.getTiles()[1].length; j++) {
 					Tile t = playField.getTile(i,j);
 					if(mouseHitBounds(t)) {
-						t.setFlaged(true);
+						t.setFlaged(!t.isFlaged());
 					}
 				}
 			}
@@ -100,6 +102,24 @@ public class Play extends BasicGameState {
 			}
 		}
 		return bombs;
+	}
+	
+	private void openBlankTiles(int row, int col) {
+		for(int i= (row - 1); i<=(row+1); i++) {
+			if(i > playField.getTiles()[0].length - 1) break;
+			if(i<0) continue;
+			for(int j = (col - 1); j<=col+1;j++){
+				if(row == i && col == j) continue;
+				if(j > playField.getTiles()[1].length - 1) break;
+				if( j < 0) continue;
+				if(playField.getTile(i, j).isClicked()) continue;
+				if(!(playField.getTile(i, j) instanceof BombTile)) {
+					playField.getTile(i, j).setClicked(true);
+					if(playField.getTile(i, j).getBombs() == 0)
+						openBlankTiles(i,j);
+				}
+			}
+		}
 	}
 
 	private boolean isBomb(Tile t) {
