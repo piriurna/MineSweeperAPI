@@ -10,16 +10,16 @@ public class Grid {
 
 	private Tile[][] tiles;
 	
-	public Grid(int rowNumber, int columnNumber, double tileSize, Difficulty difficulty) throws SlickException {
+	public Grid(int x, int y, int rowNumber, int columnNumber, double tileSize, Difficulty difficulty) throws SlickException {
 		tiles = new Tile[rowNumber][columnNumber];
 		int bombs = 0;
 		for(int i = 0; i<rowNumber; i++) {
 			for(int j = 0; j<columnNumber; j++) {
 				if(Math.random() < difficulty.getPercentageOfBombs()) {
-					tiles[i][j] = new BombTile(tileSize, j * tileSize, i * tileSize);
+					tiles[i][j] = new BombTile(tileSize, j * tileSize + x, i * tileSize + y);
 					bombs++;
 				}else
-				tiles[i][j] = new Tile(tileSize, j * tileSize, i * tileSize);
+				tiles[i][j] = new Tile(tileSize, j * tileSize + x, i * tileSize + y);
 			}
 		}
 		System.out.println("Number of bombs ingame: " + bombs); 
