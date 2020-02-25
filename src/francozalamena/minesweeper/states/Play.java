@@ -21,7 +21,8 @@ public class Play extends BasicGameState {
 	private int state;
 	private Grid playField;
 	private static final int numOfRows = 20, numOfCols = 20;
-	private static final int sideSize = 35, gridX = Game.SCREEN_WIDTH / 2 - (sideSize * numOfRows) / 2,
+	private static final int sideSize = (Game.SCREEN_HEIGHT - 100) / numOfRows,
+			gridX = Game.SCREEN_WIDTH / 2 - (sideSize * numOfRows) / 2,
 			gridY = Game.SCREEN_HEIGHT / 2 - (sideSize * numOfCols) / 2;
 
 	public Play(int state) {
@@ -130,10 +131,10 @@ public class Play extends BasicGameState {
 					if (mouseHitBounds(t)) {
 						int bombCount = (playField.getBombCount() > 0) ? (playField.getBombCount() - 1) : 0;
 						playField.setBombCount(bombCount);
-						if (bombCount > 0 && !t.isFlaged())
-							t.setFlaged(true);
+						if (bombCount > 0 && !t.isFlagged())
+							t.setFlagged(true);
 						else
-							t.setFlaged(false);
+							t.setFlagged(false);
 					}
 				}
 			}
@@ -170,17 +171,17 @@ public class Play extends BasicGameState {
 		return (getMouseX() > resetButtonX && getMouseX() < resetButtonX + 300 && getMouseY() > resetButtonY
 				&& getMouseY() < resetButtonY + 118);
 	}
-
-	@Override
-	public int getID() {
-		return state;
-	}
-
+	
 	private double getMouseX() {
 		return Mouse.getX();
 	}
 
 	private double getMouseY() {
 		return Game.SCREEN_HEIGHT - Mouse.getY();
+	}
+
+	@Override
+	public int getID() {
+		return state;
 	}
 }

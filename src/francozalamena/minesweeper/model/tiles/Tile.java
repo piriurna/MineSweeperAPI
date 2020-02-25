@@ -10,7 +10,7 @@ public class Tile {
 	protected Image sprite;
 	protected double posX, posY;
 	protected boolean isClicked;
-	protected boolean isFlaged;
+	protected boolean isFlagged;
 	private int bombs;
 
 	public Tile(double sideSize, Image sprite, double posX, double posY) {
@@ -37,7 +37,7 @@ public class Tile {
 			drawClicked(g);
 			return;
 		}
-		if (isFlaged) {
+		if (isFlagged) {
 			drawFlag(g);
 			return;
 		}
@@ -114,12 +114,12 @@ public class Tile {
 		this.isClicked = isClicked;
 	}
 
-	public boolean isFlaged() {
-		return isFlaged;
+	public boolean isFlagged() {
+		return isFlagged;
 	}
 
-	public void setFlaged(boolean isFlaged) {
-		this.isFlaged = isFlaged;
+	public void setFlagged(boolean isFlaged) {
+		this.isFlagged = isFlaged;
 	}
 
 }

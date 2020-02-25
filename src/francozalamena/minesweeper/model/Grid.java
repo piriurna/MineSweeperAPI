@@ -1,7 +1,6 @@
 package francozalamena.minesweeper.model;
 
 import org.newdawn.slick.Graphics;
-import org.newdawn.slick.SlickException;
 
 import francozalamena.minesweeper.Game;
 import francozalamena.minesweeper.model.tiles.BombTile;
@@ -71,7 +70,7 @@ public class Grid {
 					break;
 				if (j < 0)
 					continue;
-				if (isBomb(getTile(i, j)) && getTile(i, j).isFlaged()) {
+				if (isBomb(getTile(i, j)) && getTile(i, j).isFlagged()) {
 					bombs++;
 				}
 			}

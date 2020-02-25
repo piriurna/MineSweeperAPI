@@ -1,7 +1,5 @@
 package francozalamena.minesweeper;
 
-import org.lwjgl.LWJGLException;
-import org.lwjgl.opengl.Display;
 import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.SlickException;
@@ -14,9 +12,9 @@ import francozalamena.minesweeper.states.Play;
 public class Game extends StateBasedGame{
 
 	private static final int MENU = 0;
-	private static final int PLAY = 0;
+	private static final int PLAY = 1;
 	
-	public static final int SCREEN_WIDTH = 1500, SCREEN_HEIGHT = 850;
+	public static final int SCREEN_WIDTH = 1000, SCREEN_HEIGHT = 750;
 	
 	private static boolean gameOver;
 	
@@ -27,11 +25,6 @@ public class Game extends StateBasedGame{
 	}
 	
 	public static void main(String[] args) {
-		try {
-			Display.create();
-		} catch (LWJGLException e1) {
-			e1.printStackTrace();
-		}
 		AppGameContainer appgc;
 		try {
 			appgc = new AppGameContainer(new Game("MineSweeper"));

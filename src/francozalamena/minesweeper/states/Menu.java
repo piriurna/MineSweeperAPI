@@ -6,14 +6,12 @@ import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
-import francozalamena.minesweeper.model.Grid;
-
 public class Menu extends BasicGameState {
 
-	Grid playField;
-	int i= 0;
+	private int state;
 	
-	public Menu(int menu) {
+	public Menu(int state) {
+		this.state = state;
 	}
 
 	@Override
@@ -32,7 +30,7 @@ public class Menu extends BasicGameState {
 
 	@Override
 	public int getID() {
-		return 0;
+		return state;
 	}
 
 }
