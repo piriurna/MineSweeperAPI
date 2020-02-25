@@ -1,2 +1,2 @@
 # MineSweeperGame
-A minesweeper game made with slick and LWJGL
+    Minesweeper API made with java.
