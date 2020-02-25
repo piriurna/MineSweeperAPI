@@ -18,6 +18,8 @@ public class Game extends StateBasedGame{
 	
 	public static final int SCREEN_WIDTH = 1366, SCREEN_HEIGHT = 720;
 	
+	private static boolean gameOver;
+	
 	public Game(String name) {
 		super(name);
 		this.addState(new Menu(MENU));
@@ -48,7 +50,15 @@ public class Game extends StateBasedGame{
 	}
 	
 	public static void gameOver() {
-		
+		setGameOver(true);
+	}
+
+	public static boolean isOver() {
+		return gameOver;
+	}
+
+	public static void setGameOver(boolean gameOver) {
+		Game.gameOver = gameOver;
 	}
 
 }

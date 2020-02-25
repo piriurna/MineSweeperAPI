@@ -27,7 +27,6 @@ public class Play extends BasicGameState {
 		} catch (SlickException e) {
 			e.printStackTrace();
 		}
-
 	}
 
 	@Override
@@ -35,7 +34,7 @@ public class Play extends BasicGameState {
 		for (int i = 0; i < playField.getTiles()[1].length; i++) {
 			for (int j = 0; j < playField.getTiles()[0].length; j++) {
 				Tile t = playField.getTiles()[i][j];
-				t.setBombs(countBombs(i, j));
+				t.setBombs(playField.countBombs(i, j));
 			}
 		}
 	}
@@ -53,6 +52,7 @@ public class Play extends BasicGameState {
 
 	@Override
 	public void update(GameContainer gc, StateBasedGame sbg, int delta) throws SlickException {
+		if(Game.isOver()) return;
 		handleLeftMouseButton();
 		handleRightMouseButton();
 		handleMiddleMouseButton();
@@ -69,14 +69,14 @@ public class Play extends BasicGameState {
 				for (int j = 0; j < playField.getTiles()[1].length; j++) {
 					Tile t = playField.getTile(i, j);
 					if (mouseHitBounds(t)) {
-						if (isBomb(t)) {
+						if (playField.isBomb(t)) {
 							((BombTile) t).explode();
-							Game.gameOver();
+							playField.gameOver();
 						} else {
-							t.onMouseClicked();
 							if (t.getBombs() == 0)
-								openBlankTiles(i, j);
+								playField.openBlankTiles(i, j);
 						}
+						t.onMouseClicked();
 					}
 				}
 			}
@@ -90,7 +90,12 @@ public class Play extends BasicGameState {
 				for (int j = 0; j < playField.getTiles()[1].length; j++) {
 					Tile t = playField.getTile(i, j);
 					if (mouseHitBounds(t)) {
-						t.setFlaged(!t.isFlaged());
+						int bombCount = (playField.getBombCount() > 0)?(playField.getBombCount() - 1):0;
+						playField.setBombCount(bombCount);
+						if(bombCount > 0 && !t.isFlaged())
+							t.setFlaged(true);
+						else
+							t.setFlaged(false);
 					}
 				}
 			}
@@ -105,87 +110,14 @@ public class Play extends BasicGameState {
 				for (int j = 0; j < playField.getTiles()[1].length; j++) {
 					Tile t = playField.getTile(i, j);
 					if (mouseHitBounds(t))
-						if (countFlaggedBombs(i, j) == t.getBombs() && t.isClicked())
-							openBlankTiles(i, j);
+						if (playField.countFlaggedBombs(i, j) == t.getBombs() && t.isClicked())
+							playField.openBlankTiles(i, j);
 				}
 			}
 		}
 		middleMouseButton = Mouse.isButtonDown(Input.MOUSE_MIDDLE_BUTTON);
 	}
-	
-	private int countBombs(int row, int col) {
-		int bombs = 0;
-		for (int i = (row - 1); i <= (row + 1); i++) {
-			if (i > playField.getTiles()[0].length - 1)
-				break;
-			if (i < 0)
-				continue;
-			for (int j = (col - 1); j <= col + 1; j++) {
-				if (row == i && col == j)
-					continue;
-				if (j > playField.getTiles()[1].length - 1)
-					break;
-				if (j < 0)
-					continue;
-				if (isBomb(playField.getTile(i, j))) {
-					bombs++;
-				}
-			}
-		}
-		return bombs;
-	}
 
-	private int countFlaggedBombs(int row, int col) {
-		int bombs = 0;
-		for (int i = (row - 1); i <= (row + 1); i++) {
-			if (i > playField.getTiles()[0].length - 1)
-				break;
-			if (i < 0)
-				continue;
-			for (int j = (col - 1); j <= col + 1; j++) {
-				if (row == i && col == j)
-					continue;
-				if (j > playField.getTiles()[1].length - 1)
-					break;
-				if (j < 0)
-					continue;
-				if (isBomb(playField.getTile(i, j)) && playField.getTile(i, j).isFlaged()) {
-					bombs++;
-				}
-			}
-		}
-		return bombs;
-	}
-	
-	private void openBlankTiles(int row, int col) {
-		for (int i = (row - 1); i <= (row + 1); i++) {
-			if (i > playField.getTiles()[0].length - 1)
-				break;
-			if (i < 0)
-				continue;
-			for (int j = (col - 1); j <= col + 1; j++) {
-				if (row == i && col == j)
-					continue;
-				if (j > playField.getTiles()[1].length - 1)
-					break;
-				if (j < 0)
-					continue;
-				if (playField.getTile(i, j).isClicked())
-					continue;
-				if (!(playField.getTile(i, j) instanceof BombTile)) {
-					playField.getTile(i, j).setClicked(true);
-					if (playField.getTile(i, j).getBombs() == 0)
-						openBlankTiles(i, j);
-				}
-			}
-		}
-	}
-
-
-
-	private boolean isBomb(Tile t) {
-		return (t instanceof BombTile);
-	}
 
 	private boolean mouseHitBounds(Tile t) {
 		return ((getMouseX() > t.getPosX()) && (getMouseX() < t.getPosX() + t.getSideSize()))

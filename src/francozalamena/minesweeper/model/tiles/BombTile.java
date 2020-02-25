@@ -1,6 +1,9 @@
 package francozalamena.minesweeper.model.tiles;
 
+import org.newdawn.slick.Color;
 import org.newdawn.slick.Graphics;
+
+import francozalamena.minesweeper.Game;
 
 public class BombTile extends Tile {
 
@@ -11,21 +14,28 @@ public class BombTile extends Tile {
 	@Override
 	public void render(Graphics g) {
 		drawTile(g);
-		if (isFlaged()) {
+		if (isClicked) {
+			drawClicked(g);
+			return;
+		}
+		if (isFlaged) {
 			drawFlag(g);
 			return;
 		}
-
-		if (!isClicked())
-			return;
-	}
-
-	@Override
-	public void onMouseClicked() {
-		this.setClicked(true);
 	}
 
 	public void explode() {
-
+		Game.setGameOver(true);
+	}
+	
+	private void drawClicked(Graphics g) {
+		g.setColor(Color.blue);
+		g.drawString("B", (float) (posX + sideSize / 2), (float) (posY + sideSize / 2));
+		g.setColor(Color.black);
+	}
+	
+	@Override
+	public void setFlaged(boolean isFlaged) {
+		this.isFlaged = isFlaged;
 	}
 }

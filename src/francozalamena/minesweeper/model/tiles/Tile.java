@@ -33,14 +33,17 @@ public class Tile {
 
 	public void render(Graphics g) {
 		drawTile(g);
+		if (isClicked) {
+			drawClicked(g);
+			return;
+		}
 		if (isFlaged) {
 			drawFlag(g);
 			return;
 		}
-
-		if (!isClicked)
-			return;
-
+	}
+	
+	private void drawClicked(Graphics g) {
 		g.drawString(String.valueOf(getBombs()), (float) (posX + sideSize / 2), (float) (posY + sideSize / 2));
 	}
 
@@ -59,10 +62,6 @@ public class Tile {
 
 	public void onMouseClicked() {
 		this.setClicked(true);
-	}
-
-	public void onRightMouseClicked() {
-
 	}
 
 	// GETTERS AND SETTERS
