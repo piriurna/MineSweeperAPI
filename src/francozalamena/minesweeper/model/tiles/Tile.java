@@ -5,14 +5,14 @@ import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
 
 public class Tile {
-	
+
 	protected double sideSize;
 	protected Image sprite;
 	protected double posX, posY;
 	protected boolean isClicked;
 	protected boolean isFlaged;
 	private int bombs;
-	
+
 	public Tile(double sideSize, Image sprite, double posX, double posY) {
 		this.setSideSize(sideSize);
 		this.setSprite(sprite);
@@ -20,40 +20,53 @@ public class Tile {
 		this.setPosY(posY);
 		this.setClicked(false);
 	}
+
 	public Tile(double sideSize, double posX, double posY) {
 		this.setSideSize(sideSize);
 		this.setPosX(posX);
 		this.setPosY(posY);
 		this.setClicked(false);
 	}
-	public Tile() {}
 
-	
+	public Tile() {
+	}
+
 	public void render(Graphics g) {
+		drawTile(g);
+		if (isFlaged) {
+			drawFlag(g);
+			return;
+		}
+
+		if (!isClicked)
+			return;
+
+		g.drawString(String.valueOf(getBombs()), (float) (posX + sideSize / 2), (float) (posY + sideSize / 2));
+	}
+
+	protected void drawTile(Graphics g) {
 		g.setColor(Color.white);
 		g.fillRect((float) posX, (float) posY, (float) sideSize, (float) sideSize);
 		g.setColor(Color.black);
 		g.drawRect((float) posX, (float) posY, (float) sideSize, (float) sideSize);
-		if(isFlaged) {
-			g.drawString("+", (float) (posX + sideSize/2), (float) (posY + sideSize/2));
-			return;
-		}
-		
-		if(!isClicked) return;
-		
-		g.drawString(String.valueOf(getBombs()), (float) (posX + sideSize/2), (float) (posY + sideSize/2));	
 	}
-	
+
+	protected void drawFlag(Graphics g) {
+		g.setColor(Color.red);
+		g.drawString("+", (float) (posX + sideSize / 2), (float) (posY + sideSize / 2));
+		g.setColor(Color.black);
+	}
+
 	public void onMouseClicked() {
 		this.setClicked(true);
 	}
-	
+
 	public void onRightMouseClicked() {
-		
+
 	}
-	
-	//GETTERS AND SETTERS
-	
+
+	// GETTERS AND SETTERS
+
 	public double getSideSize() {
 		return sideSize;
 	}
@@ -85,24 +98,29 @@ public class Tile {
 	public void setPosY(double posY) {
 		this.posY = posY;
 	}
-	
+
 	public int getBombs() {
 		return bombs;
 	}
+
 	public void setBombs(int bombs) {
 		this.bombs = bombs;
 	}
+
 	public boolean isClicked() {
 		return isClicked;
 	}
+
 	public void setClicked(boolean isClicked) {
 		this.isClicked = isClicked;
 	}
+
 	public boolean isFlaged() {
 		return isFlaged;
 	}
+
 	public void setFlaged(boolean isFlaged) {
 		this.isFlaged = isFlaged;
 	}
-	
+
 }

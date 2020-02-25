@@ -18,28 +18,28 @@ public class Play extends BasicGameState {
 
 	private int state;
 	private Grid playField;
-	
+
 	public Play(int state) {
 		this.state = state;
 		try {
-			this.playField = new Grid(Game.SCREEN_WIDTH/2 - (35 * 10)/2 ,Game.SCREEN_HEIGHT/2 - (35 * 10)/2, 10,10, 35, Difficulty.MEDIUM);
+			this.playField = new Grid(Game.SCREEN_WIDTH / 2 - (35 * 10) / 2, Game.SCREEN_HEIGHT / 2 - (35 * 10) / 2, 10,
+					10, 35, Difficulty.MEDIUM);
 		} catch (SlickException e) {
 			e.printStackTrace();
 		}
-		
+
 	}
-	
+
 	@Override
 	public void init(GameContainer gc, StateBasedGame sbg) throws SlickException {
-		for(int i = 0; i < playField.getTiles()[1].length; i++) {
-			for(int j = 0; j<playField.getTiles()[0].length; j++) {
+		for (int i = 0; i < playField.getTiles()[1].length; i++) {
+			for (int j = 0; j < playField.getTiles()[0].length; j++) {
 				Tile t = playField.getTiles()[i][j];
 				t.setBombs(countBombs(i, j));
 			}
 		}
 	}
 
-	
 	@Override
 	public void render(GameContainer gc, StateBasedGame sbg, Graphics g) throws SlickException {
 		g.clear();
@@ -53,50 +53,103 @@ public class Play extends BasicGameState {
 
 	@Override
 	public void update(GameContainer gc, StateBasedGame sbg, int delta) throws SlickException {
-		if(Mouse.isButtonDown(Input.MOUSE_LEFT_BUTTON)) {
-			for(int i = 0; i < playField.getTiles()[0].length; i++) {
-				for(int j = 0; j<playField.getTiles()[1].length; j++) {
-					Tile t = playField.getTile(i,j);
-					if(mouseHitBounds(t)) {
-						if(isBomb(t)) {
-							((BombTile) t).explode();
-							Game.gameOver();
-						}else {
-							t.onMouseClicked();
-							if(t.getBombs() == 0)
-							openBlankTiles(i, j);
-						}
-					}
-				}
-			}
-		}else
-		if(Mouse.isButtonDown(Input.MOUSE_RIGHT_BUTTON)) {
-			for(int i = 0; i < playField.getTiles()[0].length; i++) {
-				for(int j = 0; j<playField.getTiles()[1].length; j++) {
-					Tile t = playField.getTile(i,j);
-					if(mouseHitBounds(t)) {
-						t.setFlaged(!t.isFlaged());
-					}
-				}
-			}
-		}
+		handleLeftMouseButton();
+		handleRightMouseButton();
+		handleMiddleMouseButton();
 		try {
 			Thread.sleep(30);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 	}
+
+	private void handleLeftMouseButton() {
+		if (Mouse.isButtonDown(Input.MOUSE_LEFT_BUTTON)) {
+			for (int i = 0; i < playField.getTiles()[0].length; i++) {
+				for (int j = 0; j < playField.getTiles()[1].length; j++) {
+					Tile t = playField.getTile(i, j);
+					if (mouseHitBounds(t)) {
+						if (isBomb(t)) {
+							((BombTile) t).explode();
+							Game.gameOver();
+						} else {
+							t.onMouseClicked();
+							if (t.getBombs() == 0)
+								openBlankTiles(i, j);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	private boolean rightMouseButton;
+	private void handleRightMouseButton() {
+		if (Mouse.isButtonDown(Input.MOUSE_RIGHT_BUTTON) && !rightMouseButton) {
+			for (int i = 0; i < playField.getTiles()[0].length; i++) {
+				for (int j = 0; j < playField.getTiles()[1].length; j++) {
+					Tile t = playField.getTile(i, j);
+					if (mouseHitBounds(t)) {
+						t.setFlaged(!t.isFlaged());
+					}
+				}
+			}
+		}
+		rightMouseButton = Mouse.isButtonDown(Input.MOUSE_RIGHT_BUTTON);
+	}
+
+	private boolean middleMouseButton;
+	private void handleMiddleMouseButton() {
+		if (Mouse.isButtonDown(Input.MOUSE_MIDDLE_BUTTON) && !middleMouseButton) {
+			for (int i = 0; i < playField.getTiles()[0].length; i++) {
+				for (int j = 0; j < playField.getTiles()[1].length; j++) {
+					Tile t = playField.getTile(i, j);
+					if (mouseHitBounds(t))
+						if (countFlaggedBombs(i, j) == t.getBombs() && t.isClicked())
+							openBlankTiles(i, j);
+				}
+			}
+		}
+		middleMouseButton = Mouse.isButtonDown(Input.MOUSE_MIDDLE_BUTTON);
+	}
 	
 	private int countBombs(int row, int col) {
 		int bombs = 0;
-		for(int i= (row - 1); i<=(row+1); i++) {
-			if(i > playField.getTiles()[0].length - 1) break;
-			if(i<0) continue;
-			for(int j = (col - 1); j<=col+1;j++){
-				if(row == i && col == j) continue;
-				if(j > playField.getTiles()[1].length - 1) break;
-				if( j < 0) continue;
-				if(isBomb(playField.getTile(i,j))) {
+		for (int i = (row - 1); i <= (row + 1); i++) {
+			if (i > playField.getTiles()[0].length - 1)
+				break;
+			if (i < 0)
+				continue;
+			for (int j = (col - 1); j <= col + 1; j++) {
+				if (row == i && col == j)
+					continue;
+				if (j > playField.getTiles()[1].length - 1)
+					break;
+				if (j < 0)
+					continue;
+				if (isBomb(playField.getTile(i, j))) {
+					bombs++;
+				}
+			}
+		}
+		return bombs;
+	}
+
+	private int countFlaggedBombs(int row, int col) {
+		int bombs = 0;
+		for (int i = (row - 1); i <= (row + 1); i++) {
+			if (i > playField.getTiles()[0].length - 1)
+				break;
+			if (i < 0)
+				continue;
+			for (int j = (col - 1); j <= col + 1; j++) {
+				if (row == i && col == j)
+					continue;
+				if (j > playField.getTiles()[1].length - 1)
+					break;
+				if (j < 0)
+					continue;
+				if (isBomb(playField.getTile(i, j)) && playField.getTile(i, j).isFlaged()) {
 					bombs++;
 				}
 			}
@@ -105,27 +158,35 @@ public class Play extends BasicGameState {
 	}
 	
 	private void openBlankTiles(int row, int col) {
-		for(int i= (row - 1); i<=(row+1); i++) {
-			if(i > playField.getTiles()[0].length - 1) break;
-			if(i<0) continue;
-			for(int j = (col - 1); j<=col+1;j++){
-				if(row == i && col == j) continue;
-				if(j > playField.getTiles()[1].length - 1) break;
-				if( j < 0) continue;
-				if(playField.getTile(i, j).isClicked()) continue;
-				if(!(playField.getTile(i, j) instanceof BombTile)) {
+		for (int i = (row - 1); i <= (row + 1); i++) {
+			if (i > playField.getTiles()[0].length - 1)
+				break;
+			if (i < 0)
+				continue;
+			for (int j = (col - 1); j <= col + 1; j++) {
+				if (row == i && col == j)
+					continue;
+				if (j > playField.getTiles()[1].length - 1)
+					break;
+				if (j < 0)
+					continue;
+				if (playField.getTile(i, j).isClicked())
+					continue;
+				if (!(playField.getTile(i, j) instanceof BombTile)) {
 					playField.getTile(i, j).setClicked(true);
-					if(playField.getTile(i, j).getBombs() == 0)
-						openBlankTiles(i,j);
+					if (playField.getTile(i, j).getBombs() == 0)
+						openBlankTiles(i, j);
 				}
 			}
 		}
 	}
 
+
+
 	private boolean isBomb(Tile t) {
 		return (t instanceof BombTile);
-	}	
-	
+	}
+
 	private boolean mouseHitBounds(Tile t) {
 		return ((getMouseX() > t.getPosX()) && (getMouseX() < t.getPosX() + t.getSideSize()))
 				&& ((getMouseY() > t.getPosY()) && (getMouseY() < t.getPosY() + t.getSideSize()));
@@ -135,11 +196,11 @@ public class Play extends BasicGameState {
 	public int getID() {
 		return state;
 	}
-	
+
 	private double getMouseX() {
 		return Mouse.getX();
 	}
-	
+
 	private double getMouseY() {
 		return Game.SCREEN_HEIGHT - Mouse.getY();
 	}
