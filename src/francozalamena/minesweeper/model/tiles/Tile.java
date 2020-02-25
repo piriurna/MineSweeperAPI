@@ -32,6 +32,7 @@ public class Tile {
 	}
 
 	public void render(Graphics g) {
+		defineClickedColor(g);
 		drawTile(g);
 		if (isClicked) {
 			drawClicked(g);
@@ -42,13 +43,20 @@ public class Tile {
 			return;
 		}
 	}
-	
+
+	protected void defineClickedColor(Graphics g) {
+		if (isClicked)
+			g.setColor(Color.gray);
+		else {
+			g.setColor(Color.white);
+		}
+	}
+
 	private void drawClicked(Graphics g) {
 		g.drawString(String.valueOf(getBombs()), (float) (posX + sideSize / 2), (float) (posY + sideSize / 2));
 	}
 
 	protected void drawTile(Graphics g) {
-		g.setColor(Color.white);
 		g.fillRect((float) posX, (float) posY, (float) sideSize, (float) sideSize);
 		g.setColor(Color.black);
 		g.drawRect((float) posX, (float) posY, (float) sideSize, (float) sideSize);

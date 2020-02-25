@@ -11,6 +11,7 @@ public class BombTile extends Tile {
 
 	@Override
 	public void render(Graphics g) {
+		defineClickedColor(g);
 		drawTile(g);
 		if (isClicked) {
 			drawClicked(g);

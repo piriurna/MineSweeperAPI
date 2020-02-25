@@ -12,7 +12,16 @@ public class Grid {
 	
 	private int bombCount;
 	
+	private int x, y, rowNumber, columnNumber;
+	
+	private double tileSize;
+	
 	public Grid(int x, int y, int rowNumber, int columnNumber, double tileSize, Difficulty difficulty) {
+		this.x =x;
+		this.y = y;
+		this.tileSize = tileSize;
+		this.setRowNumber(rowNumber);
+		this.setColumnNumber(columnNumber);
 		tiles = new Tile[rowNumber][columnNumber];
 
 		for(int i = 0; i<rowNumber; i++) {
@@ -134,5 +143,47 @@ public class Grid {
 
 	public void setBombCount(int bombCount) {
 		this.bombCount = bombCount;
+	}
+
+	public int getX() {
+		return x;
+	}
+
+	public void setX(int x) {
+		for(int i = 0; i < getTiles()[0].length; i++) {
+			for(int j = 0; j < getTiles()[1].length; j++) {
+				getTile(i,j).setPosX(j * this.tileSize + x);
+			}
+		}
+		this.x = x;
+	}
+
+	public int getY() {
+		return y;
+	}
+
+	public void setY(int y) {
+		for(int i = 0; i < getTiles()[0].length; i++) {
+			for(int j = 0; j < getTiles()[1].length; j++) {
+				getTile(i,j).setPosY(i * this.tileSize + y);
+			}
+		}
+		this.y = y;
+	}
+
+	public int getRowNumber() {
+		return rowNumber;
+	}
+
+	public void setRowNumber(int rowNumber) {
+		this.rowNumber = rowNumber;
+	}
+
+	public int getColumnNumber() {
+		return columnNumber;
+	}
+
+	public void setColumnNumber(int columnNumber) {
+		this.columnNumber = columnNumber;
 	}
 }

@@ -20,8 +20,8 @@ public class Play extends BasicGameState {
 
 	private int state;
 	private Grid playField;
-	private static final int numOfRows = 20, numOfCols = 20;
-	private static final int sideSize = (Game.SCREEN_HEIGHT - 100) / numOfRows,
+	private static final int numOfRows = 10, numOfCols = 10;
+	private static int sideSize = (Game.SCREEN_HEIGHT - 100) / numOfRows,
 			gridX = Game.SCREEN_WIDTH / 2 - (sideSize * numOfRows) / 2,
 			gridY = Game.SCREEN_HEIGHT / 2 - (sideSize * numOfCols) / 2;
 
@@ -34,6 +34,20 @@ public class Play extends BasicGameState {
 		createNewGame();
 	}
 
+	private static int counterX = gridX + (sideSize * numOfRows) / 2 - 25, counterY = gridY - 20;
+
+	private void drawBombCount(Graphics g) {
+		g.setColor(Color.white);
+		g.drawString("Bombs: " + playField.getBombCount(), counterX, counterY);
+	}
+
+	private static int resetButtonX = gridX + (sideSize * numOfRows) + 50, resetButtonY = gridY;
+
+	private void drawGameOver(Graphics g) throws SlickException {
+		g.setColor(Color.black);
+		g.drawImage(new Image("res/reset.png"), resetButtonX, resetButtonY);
+	}
+
 	@Override
 	public void render(GameContainer gc, StateBasedGame sbg, Graphics g) throws SlickException {
 		g.clear();
@@ -43,56 +57,47 @@ public class Play extends BasicGameState {
 			drawGameOver(g);
 		}
 		try {
-			Thread.sleep(30);
+			Thread.sleep(15);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 
-	}
-
-	private static final int counterX = gridX + (sideSize * numOfRows) / 2 - 25, counterY = gridY - 20;
-
-	private void drawBombCount(Graphics g) {
-		g.setColor(Color.white);
-		g.drawString("Bombs: " + playField.getBombCount(), counterX, counterY);
-	}
-
-	private static final int resetButtonX = gridX + (sideSize * numOfRows) + 50, resetButtonY = gridY;
-
-	private void drawGameOver(Graphics g) throws SlickException {
-		g.setColor(Color.black);
-		g.drawImage(new Image("res/reset.png"), resetButtonX, resetButtonY);
 	}
 
 	@Override
 	public void update(GameContainer gc, StateBasedGame sbg, int delta) throws SlickException {
 		if (Game.isOver()) {
 			handlePostGame();
+		} else {
+			handleLeftMouseButton();
+			handleRightMouseButton();
+			handleMiddleMouseButton();
 		}
-		handleLeftMouseButton();
-		handleRightMouseButton();
-		handleMiddleMouseButton();
 		try {
-			Thread.sleep(30);
+			Thread.sleep(15);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 	}
 
-	private void handleLeftMouseButton() {
-		if (Mouse.isButtonDown(Input.MOUSE_LEFT_BUTTON)) {
-			verifyClickedTile();
-		}
-	}
+	boolean firstTime = false;
 
 	private void handlePostGame() {
-		if(Mouse.isButtonDown(Input.MOUSE_LEFT_BUTTON))
-		if (resetClicked()) {
-			createNewGame();
-		}
+		playField.setX(15);
+		gridX = 15;
+		counterX = gridX + (sideSize * numOfRows) / 2 - 25;
+		resetButtonX = gridX + (sideSize * numOfRows) + 50;
+		if (Mouse.isButtonDown(Input.MOUSE_LEFT_BUTTON))
+			if (resetClicked()) {
+				createNewGame();
+			}
 	}
-	
+
 	private void createNewGame() {
+		sideSize = (Game.SCREEN_HEIGHT - 100) / numOfRows;
+		gridX = Game.SCREEN_WIDTH / 2 - (sideSize * numOfRows) / 2;
+		gridY = Game.SCREEN_HEIGHT / 2 - (sideSize * numOfCols) / 2;
+		counterX = gridX + (sideSize * numOfRows) / 2 - 25;
 		this.playField = new Grid(gridX, gridY, numOfRows, numOfCols, sideSize, Difficulty.MEDIUM);
 		for (int i = 0; i < playField.getTiles()[1].length; i++) {
 			for (int j = 0; j < playField.getTiles()[0].length; j++) {
@@ -121,6 +126,15 @@ public class Play extends BasicGameState {
 		}
 	}
 
+	private boolean leftMouseButton;
+
+	private void handleLeftMouseButton() {
+		if (Mouse.isButtonDown(Input.MOUSE_LEFT_BUTTON) && !leftMouseButton) {
+			verifyClickedTile();
+		}
+		leftMouseButton = Mouse.isButtonDown(Input.MOUSE_LEFT_BUTTON);
+	}
+
 	private boolean rightMouseButton;
 
 	private void handleRightMouseButton() {
@@ -129,17 +143,24 @@ public class Play extends BasicGameState {
 				for (int j = 0; j < playField.getTiles()[1].length; j++) {
 					Tile t = playField.getTile(i, j);
 					if (mouseHitBounds(t)) {
-						int bombCount = (playField.getBombCount() > 0) ? (playField.getBombCount() - 1) : 0;
-						playField.setBombCount(bombCount);
-						if (bombCount > 0 && !t.isFlagged())
-							t.setFlagged(true);
-						else
-							t.setFlagged(false);
+						flagTile(t);
 					}
 				}
 			}
 		}
 		rightMouseButton = Mouse.isButtonDown(Input.MOUSE_RIGHT_BUTTON);
+	}
+
+	private void flagTile(Tile t) {
+		if (!t.isFlagged()) {
+			if (!t.isClicked()) {
+				if((playField.getBombCount() > 0)) t.setFlagged(true);
+				playField.setBombCount((playField.getBombCount() > 0) ? (playField.getBombCount() - 1) : 0);	
+			}
+		} else {
+			t.setFlagged(false);
+			playField.setBombCount(playField.getBombCount() + 1);
+		}
 	}
 
 	private boolean middleMouseButton;
@@ -171,7 +192,7 @@ public class Play extends BasicGameState {
 		return (getMouseX() > resetButtonX && getMouseX() < resetButtonX + 300 && getMouseY() > resetButtonY
 				&& getMouseY() < resetButtonY + 118);
 	}
-	
+
 	private double getMouseX() {
 		return Mouse.getX();
 	}
