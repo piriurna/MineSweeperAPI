@@ -113,6 +113,8 @@ public class Play extends BasicGameState {
 			for (int j = 0; j < playField.getTiles()[1].length; j++) {
 				Tile t = playField.getTile(i, j);
 				if (mouseHitBounds(t)) {
+					if(t.isFlagged()) return;
+					t.onMouseClicked();
 					if (playField.isBomb(t)) {
 						((BombTile) t).explode();
 						playField.gameOver();
@@ -120,7 +122,6 @@ public class Play extends BasicGameState {
 						if (t.getBombs() == 0)
 							playField.openBlankTiles(i, j);
 					}
-					t.onMouseClicked();
 				}
 			}
 		}
@@ -143,24 +144,12 @@ public class Play extends BasicGameState {
 				for (int j = 0; j < playField.getTiles()[1].length; j++) {
 					Tile t = playField.getTile(i, j);
 					if (mouseHitBounds(t)) {
-						flagTile(t);
+						playField.flagTile(t);
 					}
 				}
 			}
 		}
 		rightMouseButton = Mouse.isButtonDown(Input.MOUSE_RIGHT_BUTTON);
-	}
-
-	private void flagTile(Tile t) {
-		if (!t.isFlagged()) {
-			if (!t.isClicked()) {
-				if((playField.getBombCount() > 0)) t.setFlagged(true);
-				playField.setBombCount((playField.getBombCount() > 0) ? (playField.getBombCount() - 1) : 0);	
-			}
-		} else {
-			t.setFlagged(false);
-			playField.setBombCount(playField.getBombCount() + 1);
-		}
 	}
 
 	private boolean middleMouseButton;
@@ -171,7 +160,7 @@ public class Play extends BasicGameState {
 				for (int j = 0; j < playField.getTiles()[1].length; j++) {
 					Tile t = playField.getTile(i, j);
 					if (mouseHitBounds(t))
-						if (playField.countFlaggedBombs(i, j) == t.getBombs() && t.isClicked())
+						if (playField.countFlaggedTiles(i, j) == t.getBombs() && t.isClicked())
 							playField.openBlankTiles(i, j);
 				}
 			}
