@@ -3,6 +3,7 @@ package francozalamena.minesweeper.model;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.SlickException;
 
+import francozalamena.minesweeper.Game;
 import francozalamena.minesweeper.model.tiles.BombTile;
 import francozalamena.minesweeper.model.tiles.Tile;
 
@@ -12,7 +13,7 @@ public class Grid {
 	
 	private int bombCount;
 	
-	public Grid(int x, int y, int rowNumber, int columnNumber, double tileSize, Difficulty difficulty) throws SlickException {
+	public Grid(int x, int y, int rowNumber, int columnNumber, double tileSize, Difficulty difficulty) {
 		tiles = new Tile[rowNumber][columnNumber];
 
 		for(int i = 0; i<rowNumber; i++) {
@@ -107,6 +108,7 @@ public class Grid {
 	}
 	
 	public void gameOver() {
+		Game.setGameOver(true);
 		for(int i = 0; i < getTiles()[0].length; i++) {
 			for(int j = 0; j < getTiles()[1].length; j++) {
 				Tile t = getTile(i,j);

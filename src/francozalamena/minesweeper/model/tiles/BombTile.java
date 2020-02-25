@@ -25,7 +25,6 @@ public class BombTile extends Tile {
 	}
 
 	public void explode() {
-		Game.setGameOver(true);
 	}
 	
 	private void drawClicked(Graphics g) {

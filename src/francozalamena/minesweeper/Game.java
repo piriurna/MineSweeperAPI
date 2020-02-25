@@ -16,7 +16,7 @@ public class Game extends StateBasedGame{
 	private static final int MENU = 0;
 	private static final int PLAY = 0;
 	
-	public static final int SCREEN_WIDTH = 1366, SCREEN_HEIGHT = 720;
+	public static final int SCREEN_WIDTH = 1500, SCREEN_HEIGHT = 850;
 	
 	private static boolean gameOver;
 	

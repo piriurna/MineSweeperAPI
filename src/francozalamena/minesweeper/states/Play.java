@@ -1,8 +1,10 @@
 package francozalamena.minesweeper.states;
 
 import org.lwjgl.input.Mouse;
+import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
+import org.newdawn.slick.Image;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.BasicGameState;
@@ -18,41 +20,54 @@ public class Play extends BasicGameState {
 
 	private int state;
 	private Grid playField;
+	private static final int numOfRows = 20, numOfCols = 20;
+	private static final int sideSize = 35, gridX = Game.SCREEN_WIDTH / 2 - (sideSize * numOfRows) / 2,
+			gridY = Game.SCREEN_HEIGHT / 2 - (sideSize * numOfCols) / 2;
 
 	public Play(int state) {
 		this.state = state;
-		try {
-			this.playField = new Grid(Game.SCREEN_WIDTH / 2 - (35 * 10) / 2, Game.SCREEN_HEIGHT / 2 - (35 * 10) / 2, 10,
-					10, 35, Difficulty.MEDIUM);
-		} catch (SlickException e) {
-			e.printStackTrace();
-		}
 	}
 
 	@Override
 	public void init(GameContainer gc, StateBasedGame sbg) throws SlickException {
-		for (int i = 0; i < playField.getTiles()[1].length; i++) {
-			for (int j = 0; j < playField.getTiles()[0].length; j++) {
-				Tile t = playField.getTiles()[i][j];
-				t.setBombs(playField.countBombs(i, j));
-			}
-		}
+		createNewGame();
 	}
 
 	@Override
 	public void render(GameContainer gc, StateBasedGame sbg, Graphics g) throws SlickException {
 		g.clear();
 		playField.render(g);
+		drawBombCount(g);
+		if (Game.isOver()) {
+			drawGameOver(g);
+		}
 		try {
 			Thread.sleep(30);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+
+	}
+
+	private static final int counterX = gridX + (sideSize * numOfRows) / 2 - 25, counterY = gridY - 20;
+
+	private void drawBombCount(Graphics g) {
+		g.setColor(Color.white);
+		g.drawString("Bombs: " + playField.getBombCount(), counterX, counterY);
+	}
+
+	private static final int resetButtonX = gridX + (sideSize * numOfRows) + 50, resetButtonY = gridY;
+
+	private void drawGameOver(Graphics g) throws SlickException {
+		g.setColor(Color.black);
+		g.drawImage(new Image("res/reset.png"), resetButtonX, resetButtonY);
 	}
 
 	@Override
 	public void update(GameContainer gc, StateBasedGame sbg, int delta) throws SlickException {
-		if(Game.isOver()) return;
+		if (Game.isOver()) {
+			handlePostGame();
+		}
 		handleLeftMouseButton();
 		handleRightMouseButton();
 		handleMiddleMouseButton();
@@ -65,34 +80,57 @@ public class Play extends BasicGameState {
 
 	private void handleLeftMouseButton() {
 		if (Mouse.isButtonDown(Input.MOUSE_LEFT_BUTTON)) {
-			for (int i = 0; i < playField.getTiles()[0].length; i++) {
-				for (int j = 0; j < playField.getTiles()[1].length; j++) {
-					Tile t = playField.getTile(i, j);
-					if (mouseHitBounds(t)) {
-						if (playField.isBomb(t)) {
-							((BombTile) t).explode();
-							playField.gameOver();
-						} else {
-							if (t.getBombs() == 0)
-								playField.openBlankTiles(i, j);
-						}
-						t.onMouseClicked();
+			verifyClickedTile();
+		}
+	}
+
+	private void handlePostGame() {
+		if(Mouse.isButtonDown(Input.MOUSE_LEFT_BUTTON))
+		if (resetClicked()) {
+			createNewGame();
+		}
+	}
+	
+	private void createNewGame() {
+		this.playField = new Grid(gridX, gridY, numOfRows, numOfCols, sideSize, Difficulty.MEDIUM);
+		for (int i = 0; i < playField.getTiles()[1].length; i++) {
+			for (int j = 0; j < playField.getTiles()[0].length; j++) {
+				Tile t = playField.getTiles()[i][j];
+				t.setBombs(playField.countBombs(i, j));
+			}
+		}
+		Game.setGameOver(false);
+	}
+
+	private void verifyClickedTile() {
+		for (int i = 0; i < playField.getTiles()[0].length; i++) {
+			for (int j = 0; j < playField.getTiles()[1].length; j++) {
+				Tile t = playField.getTile(i, j);
+				if (mouseHitBounds(t)) {
+					if (playField.isBomb(t)) {
+						((BombTile) t).explode();
+						playField.gameOver();
+					} else {
+						if (t.getBombs() == 0)
+							playField.openBlankTiles(i, j);
 					}
+					t.onMouseClicked();
 				}
 			}
 		}
 	}
 
 	private boolean rightMouseButton;
+
 	private void handleRightMouseButton() {
 		if (Mouse.isButtonDown(Input.MOUSE_RIGHT_BUTTON) && !rightMouseButton) {
 			for (int i = 0; i < playField.getTiles()[0].length; i++) {
 				for (int j = 0; j < playField.getTiles()[1].length; j++) {
 					Tile t = playField.getTile(i, j);
 					if (mouseHitBounds(t)) {
-						int bombCount = (playField.getBombCount() > 0)?(playField.getBombCount() - 1):0;
+						int bombCount = (playField.getBombCount() > 0) ? (playField.getBombCount() - 1) : 0;
 						playField.setBombCount(bombCount);
-						if(bombCount > 0 && !t.isFlaged())
+						if (bombCount > 0 && !t.isFlaged())
 							t.setFlaged(true);
 						else
 							t.setFlaged(false);
@@ -104,6 +142,7 @@ public class Play extends BasicGameState {
 	}
 
 	private boolean middleMouseButton;
+
 	private void handleMiddleMouseButton() {
 		if (Mouse.isButtonDown(Input.MOUSE_MIDDLE_BUTTON) && !middleMouseButton) {
 			for (int i = 0; i < playField.getTiles()[0].length; i++) {
@@ -118,10 +157,18 @@ public class Play extends BasicGameState {
 		middleMouseButton = Mouse.isButtonDown(Input.MOUSE_MIDDLE_BUTTON);
 	}
 
+	private boolean mouseHitBounds(Object o) {
+		if (o instanceof Tile)
+			return ((getMouseX() > ((Tile) o).getPosX())
+					&& (getMouseX() < ((Tile) o).getPosX() + ((Tile) o).getSideSize()))
+					&& ((getMouseY() > ((Tile) o).getPosY())
+							&& (getMouseY() < ((Tile) o).getPosY() + ((Tile) o).getSideSize()));
+		return false;
+	}
 
-	private boolean mouseHitBounds(Tile t) {
-		return ((getMouseX() > t.getPosX()) && (getMouseX() < t.getPosX() + t.getSideSize()))
-				&& ((getMouseY() > t.getPosY()) && (getMouseY() < t.getPosY() + t.getSideSize()));
+	private boolean resetClicked() {
+		return (getMouseX() > resetButtonX && getMouseX() < resetButtonX + 300 && getMouseY() > resetButtonY
+				&& getMouseY() < resetButtonY + 118);
 	}
 
 	@Override
